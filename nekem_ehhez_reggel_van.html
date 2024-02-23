@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Útvonal</title>
+    <style>
+        body { background-color: beige; }
+        #jatek { 
+            background-color: white; 
+            border: 1px solid black;
+            width: 661px; height: 661px;
+            margin: auto;
+            border-collapse: collapse;
+            padding: 10px;
+            font-size: 0px;
+            margin-bottom: 5px;
+        }
+        #jatek img {
+            border-top: 1px solid lightgrey;
+            border-left: 1px solid lightgrey;
+        }
+        #jatek img:hover {
+            background-color: lightgrey;
+        }
+        #keret {
+            border-right: 1px solid lightgrey;
+            border-bottom: 1px solid lightgrey;
+        }
+        #hud {
+            width: 680px;
+            margin: auto;
+        }
+        #hud img {
+            vertical-align: middle;
+        }
+        #hud span {
+            float: right;
+            font-size: x-large;
+        }
+    </style>
+    <script>
+        let palya;
+        let utvonal;
+        let darabszam;
+        let elso_katt = true;
+        let elso_lepes = true;
+        let mozgas = false;
+        let jatek;
+        let counter;
+        
+        function start() {
+            jatek = document.getElementById("jatek");
+            let html = "<div id='keret'>";
+            palya = [];
+            utvonal = [];
+            darabszam = 0;
+            counter = 0;
+
+            for (let y = 0; y < 20; y++) {
+                palya[y] = [];
+                for (let x = 0; x < 20; x++) {
+                    palya[y][x] = "null.png";
+                    html += "<img src='null.png' id='" + y + "y" + x + "x' onclick='katt(" + y + ", " + x + ");'>"
+                }
+            }
+            html += "</div>";
+            jatek.innerHTML = html;
+            document.getElementById("db").innerHTML = darabszam + " <img onclick='start();' src='clear.png'>";
+        }
+
+        function katt(y, x) {
+            if (elso_katt) {
+                elso_katt = false;
+                palya[y][x] = "add.png";
+                utvonal[darabszam] = [y, x];
+                document.getElementById(y + "y" + x + "x").src = palya[y][x];
+            } else if (palya[y][x] == "null.png") {
+                if (y < 19 && palya[y+1][x] == "add.png") {
+                    darabszam++;
+                    utvonal[darabszam] = [y, x];
+                    palya[y][x] = "add.png";
+                    palya[y+1][x] = "up.png";
+                    document.getElementById(y + "y" + x + "x").src = palya[y][x];
+                    document.getElementById((y+1) + "y" + x + "x").src = palya[y+1][x];
+                } else if (y > 0 && palya[y-1][x] == "add.png") {
+                    darabszam++;
+                    utvonal[darabszam] = [y, x];
+                    palya[y][x] = "add.png";
+                    palya[y-1][x] = "down.png";
+                    document.getElementById(y + "y" + x + "x").src = palya[y][x];
+                    document.getElementById((y-1) + "y" + x + "x").src = palya[y-1][x];
+                } else if (x < 19 && palya[y][x+1] == "add.png") {
+                    darabszam++;
+                    utvonal[darabszam] = [y, x];
+                    palya[y][x] = "add.png";
+                    palya[y][x+1] = "left.png";
+                    document.getElementById(y + "y" + x + "x").src = palya[y][x];
+                    document.getElementById(y + "y" + (x+1) + "x").src = palya[y][x+1];
+                } else if (x > 0 && palya[y][x-1] == "add.png") {
+                    darabszam++;
+                    utvonal[darabszam] = [y, x];
+                    palya[y][x] = "add.png";
+                    palya[y][x-1] = "right.png";
+                    document.getElementById(y + "y" + x + "x").src = palya[y][x];
+                    document.getElementById(y + "y" + (x-1) + "x").src = palya[y][x-1];
+                    
+                }
+            }
+            document.getElementById("db").innerHTML = darabszam + " <img onclick='start();' src='clear.png'>";
+        }
+
+        let t1 = null;
+        function play() {
+            if (!mozgas) {
+                mozgas = true;
+                counter = 0;
+                document.getElementById("play").src = "playS.png";
+                t1 = setInterval(mozog, 250);
+            } else {
+                mozgas = false;
+                clearInterval(t1);
+                document.getElementById("play").src = "play.png";
+            }
+        };
+
+        
+        function mozog() {
+            if (darabszam > 0) {
+                let coord = utvonal.shift();
+                //let coord = utvonal[counter];
+                counter++;
+                darabszam--;
+                palya[coord[0]][coord[1]] = "null.png";
+                document.getElementById(coord[0] + "y" + coord[1] + "x").src = "null.png";
+                document.getElementById("db").innerHTML = darabszam + " <img onclick='start();' src='clear.png'>";
+            } else {
+                mozgas = false;
+                counter = 0;
+                clearInterval(t1);
+                document.getElementById("play").src = "play.png";
+            }
+        }
+    </script>
+</head>
+<body onload="start();">
+    <div id="jatek"></div>
+    <div id="hud">
+        <img id="play" onclick="play();" src="play.png">
+        <span id="db"></span>
+    </div>
+</body>
+</html>
